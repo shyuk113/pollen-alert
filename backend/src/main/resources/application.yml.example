@@ -1,8 +1,9 @@
+# application.yml.example
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/pollen_alert
     username: postgres
-    password: 1478
+    password:           # 여기에 비밀번호 입력
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -11,7 +12,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8080
