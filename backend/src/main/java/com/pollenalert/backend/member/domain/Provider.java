@@ -1,4 +1,4 @@
-package com.pollenalert.member.domain;
+package com.pollenalert.backend.member.domain;
 
 public enum Provider {
 
