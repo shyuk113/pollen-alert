@@ -38,7 +38,7 @@ public class User {
     private Provider provider;
 
     @Column(name = "provider_id")
-    String provider_id;
+    String providerId;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -63,7 +63,7 @@ public class User {
         user.email = email;
         user.name = name;
         user.provider = provider;
-        user.provider_id = providerId;
+        user.providerId = providerId;
         return user;
     }
 
