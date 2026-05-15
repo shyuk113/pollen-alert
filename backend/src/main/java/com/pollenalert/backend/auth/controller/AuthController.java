@@ -8,10 +8,7 @@ import com.pollenalert.backend.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -41,10 +38,17 @@ public class AuthController {
         return ResponseEntity.ok(authService.refresh(refreshToken));
     }
 
-    //로그아웃
+    /*로그아웃 v1 postgresql DB 사용
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@AuthenticationPrincipal Long userId){
         authService.logout(userId);
+        return ResponseEntity.noContent().build();
+    }*/
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@AuthenticationPrincipal Long userId, @RequestHeader("Authorization") String bearerToken){
+        String accessToken = bearerToken.substring(7);
+        authService.logout(userId, accessToken);
         return ResponseEntity.noContent().build();
     }
 
