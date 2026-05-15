@@ -2,6 +2,7 @@ package com.pollenalert.backend.global.config;
 
 import com.pollenalert.backend.global.jwt.JwtAuthenticationFilter;
 import com.pollenalert.backend.global.jwt.JwtTokenProvider;
+import com.pollenalert.backend.global.redis.RedisTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTokenService  redisTokenService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -33,7 +35,7 @@ public class SecurityConfig {
                         "/api/auth/naver",
                         "/api/auth/google",
                         "/api/pollen/**").permitAll().anyRequest().authenticated())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
