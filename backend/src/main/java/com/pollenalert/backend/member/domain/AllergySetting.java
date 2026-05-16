@@ -24,7 +24,7 @@ public class AllergySetting {
     private User user;
 
     @Column(name = "has_pollen_allergy", nullable = false)
-    private boolean has_pollen_allergy;
+    private boolean hasPollenAllergy;
 
     @Column
     private String types;   //oak, pine, weed 3가지에서 선택
@@ -37,14 +37,14 @@ public class AllergySetting {
     public static AllergySetting create(User user, boolean hasPollenAllergy, String types){
         AllergySetting setting = new AllergySetting();
         setting.user = user;
-        setting.has_pollen_allergy = hasPollenAllergy;
+        setting.hasPollenAllergy = hasPollenAllergy;
         setting.types = types;
         return setting;
     }
 
     //수정 메서드
     public void update(boolean hasPollenAllergy, String types){
-        this.has_pollen_allergy = hasPollenAllergy;
+        this.hasPollenAllergy = hasPollenAllergy;
         this.types = types;
     }
 }
