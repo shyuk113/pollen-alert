@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,7 +26,7 @@ public class PollenData {
     private String region;
 
     @Column(name = "forecast_date", nullable = false)
-    private LocalDateTime forecastDate;
+    private LocalDate forecastDate;
 
     @Column(nullable = false)
     private int level;  //0, 1, 2, 3
@@ -41,7 +42,7 @@ public class PollenData {
     @Column(name = "collected_at", updatable = false)
     private LocalDateTime collectedAt;
 
-    public static PollenData createPollenData(String region, LocalDateTime forecastDate, int level, String grade, Source source) {
+    public static PollenData create(String region, LocalDate forecastDate, int level, String grade, Source source) {
         PollenData pollenData = new PollenData();
         pollenData.region = region;
         pollenData.forecastDate = forecastDate;
