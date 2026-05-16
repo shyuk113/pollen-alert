@@ -5,6 +5,7 @@ import com.pollenalert.backend.pollen.dto.PollenResponseDto;
 import com.pollenalert.backend.pollen.service.PollenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,14 +23,14 @@ public class PollenController {
 
     //꽃가루 조회
     @GetMapping
-    public ResponseEntity<PollenResponseDto> getPollen(@RequestParam String region){
-        return ResponseEntity.ok(pollenService.getPollen(region));
+    public ResponseEntity<PollenResponseDto> getPollen(@RequestParam String region, @AuthenticationPrincipal Long userId){
+        return ResponseEntity.ok(pollenService.getPollen(region, userId));
     }
 
     //꽃가루 예보 조회
     @GetMapping("/forecast")
-    public ResponseEntity<PollenForecastResponseDto> getForecast(@RequestParam String region){
-        return ResponseEntity.ok(pollenService.getForecast(region));
+    public ResponseEntity<PollenForecastResponseDto> getForecast(@RequestParam String region, @AuthenticationPrincipal Long userId){
+        return ResponseEntity.ok(pollenService.getForecast(region, userId));
     }
 
     //지역 조회

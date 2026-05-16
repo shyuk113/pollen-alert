@@ -33,8 +33,7 @@ public class SecurityConfig {
                         "/api/auth/refresh",
                         "/api/auth/kakao",
                         "/api/auth/naver",
-                        "/api/auth/google",
-                        "/api/pollen/**").permitAll().anyRequest().authenticated())
+                        "/api/auth/google").permitAll().anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

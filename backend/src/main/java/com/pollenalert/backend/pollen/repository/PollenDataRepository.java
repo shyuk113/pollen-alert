@@ -16,4 +16,10 @@ public interface PollenDataRepository extends JpaRepository<PollenData,Long> {
 
     //지역, 날짜 범위로 조회
     List<PollenData> findByRegionAndForecastDateBetweenOrderByForecastDateAsc(String region, LocalDate startDate, LocalDate endDate);
+
+    //지역 날짜 종류로 조회
+    Optional<PollenData> findByRegionAndForecastDateAndPollenType(String region, LocalDate forecastDate, String pollenType);
+
+    //지역 날짜 종류 목록으로 조회
+    List<PollenData> findByRegionAndForecastDateAndPollenTypeIn(String region, LocalDate forecastDate, List<String> pollenTypes);
 }

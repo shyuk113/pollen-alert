@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "pollen_data",
-uniqueConstraints = @UniqueConstraint(columnNames = {"region", "forecast_date","source"}))
+uniqueConstraints = @UniqueConstraint(columnNames = {"region", "forecast_date","source","pollen_type"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
@@ -38,17 +38,21 @@ public class PollenData {
     @Column(nullable = false)
     private Source source;
 
+    @Column(nullable = false)
+    private String pollenType; //oak, pine, weed
+
     @CreatedDate
     @Column(name = "collected_at", updatable = false)
     private LocalDateTime collectedAt;
 
-    public static PollenData create(String region, LocalDate forecastDate, int level, String grade, Source source) {
+    public static PollenData create(String region, LocalDate forecastDate, int level, String grade, Source source, String pollenType) {
         PollenData pollenData = new PollenData();
         pollenData.region = region;
         pollenData.forecastDate = forecastDate;
         pollenData.level = level;
         pollenData.grade = grade;
         pollenData.source = source;
+        pollenData.pollenType = pollenType;
         return pollenData;
     }
 }
