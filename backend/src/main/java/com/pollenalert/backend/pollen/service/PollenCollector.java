@@ -2,6 +2,7 @@ package com.pollenalert.backend.pollen.service;
 
 import com.pollenalert.backend.pollen.domain.PollenData;
 import com.pollenalert.backend.pollen.domain.RegionCode;
+import com.pollenalert.backend.pollen.domain.Source;
 import com.pollenalert.backend.pollen.dto.KmaPollenResponseDto;
 import com.pollenalert.backend.pollen.repository.PollenDataRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +31,14 @@ public class PollenCollector {
     @Value("${kma.base-url}")
     private String baseUrl;
 
+    //꽃가루 엔드포인트
     private static final List<String> ENDPOINTS = Arrays.asList(
             "/getOakPollenRiskIdxV3",    // 참나무
             "/getPinePollenRiskIdxV3",   // 소나무
             "/getWeedsPollenRiskndxV3"   // 잡초류
     );
 
+    //6시간 마다 수집
     @Scheduled(cron = "0 0 0/6 * * *")//
     public void collect(){
         log.info("꽃가루 데이터 수집 시작");
@@ -64,6 +67,7 @@ public class PollenCollector {
         savePollenData(region.name(),item);
     }
 
+    //4일치 저장
     private void savePollenData(String regionName, KmaPollenResponseDto.Item item){
         saveSingleDay(regionName, LocalDate.now(), item.getToday());
         saveSingleDay(regionName, LocalDate.now().plusDays(1), item.getTomorrow());
@@ -81,7 +85,7 @@ public class PollenCollector {
             return;
         }
 
-        PollenData data = PollenData.create(regionName, date, level, grade, PollenData.Source.KMA);
+        PollenData data = PollenData.create(regionName, date, level, grade, Source.KMA);
 
         pollenDataRepository.save(data);
     }
