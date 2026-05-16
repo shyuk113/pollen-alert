@@ -31,13 +31,13 @@ public class KmaPollenResponseDto {
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Items{
-        private List<item> item;
+        private List<Item> item;
     }
 
     @Getter
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class item{
+    public static class Item{
         private String code;
         private String areaNo;
         private String data;
