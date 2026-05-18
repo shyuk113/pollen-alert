@@ -30,18 +30,18 @@ public class AlertHistory {
     private AlertType alertType;
 
     @Column(name = "alert_level", nullable = false)
-    private int pollenLevel;
+    private int alertLevel;
 
     @CreatedDate
     @Column(name = "sent_at", nullable = false)
     private LocalDateTime sentAt;
 
 
-    public static AlertHistory createAlertHistory(User user, AlertType alertType, int pollenLevel) {
+    public static AlertHistory createAlertHistory(User user, AlertType alertType, int alertLevel) {
         AlertHistory alertHistory = new AlertHistory();
         alertHistory.user = user;
         alertHistory.alertType = alertType;
-        alertHistory.pollenLevel = pollenLevel;
+        alertHistory.alertLevel = alertLevel;
         return alertHistory;
     }
 

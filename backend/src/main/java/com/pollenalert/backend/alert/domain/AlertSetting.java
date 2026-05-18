@@ -43,21 +43,23 @@ public class AlertSetting {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public static AlertSetting createAlertSetting(User user, boolean enabled, int threshold, int notifyDaysBefore, String notifyTime) {
+    public static AlertSetting createAlertSetting(User user, boolean enabled, int threshold, int notifyDaysBefore, String notifyTime, String fcmToken) {
         AlertSetting alertSetting = new AlertSetting();
         alertSetting.user = user;
-        alertSetting.enabled = false; //기본값 얼람off
-        alertSetting.threshold = 1; //기본값 보통
-        alertSetting.notifyDaysBefore = 3; //기본값 3일
-        alertSetting.notifyTime = "08:00"; //기본값 오전8시
+        alertSetting.enabled = enabled; //기본값 얼람off
+        alertSetting.threshold = threshold; //기본값 보통
+        alertSetting.notifyDaysBefore = notifyDaysBefore; //기본값 3일
+        alertSetting.notifyTime = notifyTime; //기본값 오전8시
+        alertSetting.fcmToken = fcmToken;
         return alertSetting;
     }
 
-    public void updateAlertSetting(boolean enabled, int threshold, int notifyDaysBefore, String notifyTime) {
+    public void updateAlertSetting(boolean enabled, int threshold, int notifyDaysBefore, String notifyTime, String fcmToken) {
         this.enabled = enabled;
         this.threshold = threshold;
         this.notifyDaysBefore = notifyDaysBefore;
         this.notifyTime = notifyTime;
+        this.fcmToken = fcmToken;
     }
 
     public void updateFcmToken(String fcmToken){
