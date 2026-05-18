@@ -37,7 +37,11 @@ public class PollenService {
 
         List<PollenData> dataList= pollenDataRepository.findByRegionAndForecastDateAndPollenTypeIn(region, today, types);
 
-        List<PollenTypeResponseDto> pollens = dataList.stream().map(d->new PollenTypeResponseDto(d.getPollenType(), d.getLevel(), d.getGrade())).collect(Collectors.toList());
+        List<PollenTypeResponseDto> pollens = dataList.stream().map(d->new PollenTypeResponseDto(d.getPollenType(), d.getLevel(), d.getGrade())).toList();
+
+        if (dataList.isEmpty()){
+            throw new IllegalArgumentException("꽃가루 데이터가 없습니다.");
+        }
 
         return new PollenResponseDto(region,today.toString(), dataList.get(0).getSource().name(), pollens);
     }

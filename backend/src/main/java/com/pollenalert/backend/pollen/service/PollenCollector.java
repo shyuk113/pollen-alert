@@ -78,10 +78,10 @@ public class PollenCollector {
 
     //4일치 저장
     private void savePollenData(String regionName, KmaPollenResponseDto.Item item, String pollenType){
-        saveSingleDay(regionName, LocalDate.now().plusDays(1), item.getToday(), pollenType);
-        saveSingleDay(regionName, LocalDate.now().plusDays(2), item.getTomorrow(), pollenType);
-        saveSingleDay(regionName, LocalDate.now().plusDays(3), item.getDayaftertomorrow(), pollenType);
-        saveSingleDay(regionName, LocalDate.now().plusDays(4), item.getTodaysaftertomorrow(), pollenType);
+        saveSingleDay(regionName, LocalDate.now(), item.getToday(), pollenType);
+        saveSingleDay(regionName, LocalDate.now().plusDays(1), item.getTomorrow(), pollenType);
+        saveSingleDay(regionName, LocalDate.now().plusDays(2), item.getDayaftertomorrow(), pollenType);
+        saveSingleDay(regionName, LocalDate.now().plusDays(3), item.getTodaysaftertomorrow(), pollenType);
     }
 
     private void saveSingleDay(String regionName, LocalDate date, String levelStr, String pollenType){
