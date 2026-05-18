@@ -26,5 +26,6 @@ replay_pid*
 ### 환경 설정 ###
 **/src/main/resources/application.yml
 **/src/main/resources/application-*.yml
+**/src/main/resources/firebase-service-account.json
 
 .idea/
