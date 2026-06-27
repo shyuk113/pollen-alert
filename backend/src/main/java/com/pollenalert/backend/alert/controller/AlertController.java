@@ -4,6 +4,7 @@ import com.pollenalert.backend.alert.dto.AlertHistoryResponseDto;
 import com.pollenalert.backend.alert.dto.AlertSettingRequestDto;
 import com.pollenalert.backend.alert.dto.AlertSettingResponseDto;
 import com.pollenalert.backend.alert.service.AlertService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +21,7 @@ public class AlertController {
 
     //알림 설정 저장
     @PostMapping("/setting")
-    public ResponseEntity<AlertSettingResponseDto> saveAlertSetting(@AuthenticationPrincipal Long userId, @RequestBody AlertSettingRequestDto request){
+    public ResponseEntity<AlertSettingResponseDto> saveAlertSetting(@AuthenticationPrincipal Long userId, @Valid @RequestBody AlertSettingRequestDto request){
         return ResponseEntity.ok(alertService.saveAlertSetting(userId,request));
     }
 

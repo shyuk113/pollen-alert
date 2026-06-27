@@ -44,11 +44,20 @@ public class MemberService {
         userRepository.delete(user);
     }
 
+    private static final java.util.Set<String> VALID_POLLEN_TYPES = java.util.Set.of("oak", "pine", "weed");
+
     //알러지 설정 저장
     @Transactional
     public AllergyResponseDto saveAllergy(Long userId, Long requesterId, AllergyRequestDto request){
         validateAccess(userId, requesterId);
         User user = findUser(userId);
+
+        for (String type : request.types()) {
+            if (!VALID_POLLEN_TYPES.contains(type)) {
+                throw new IllegalArgumentException("유효하지 않은 알러지 타입입니다: " + type + " (oak, pine, weed 중 선택)");
+            }
+        }
+
         String types = String.join(",", request.types());
 
         AllergySetting setting = allergySettingRepository.findByUser_id(userId).orElse(null);
