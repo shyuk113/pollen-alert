@@ -5,6 +5,7 @@ import com.pollenalert.backend.member.dto.AllergyResponseDto;
 import com.pollenalert.backend.member.dto.MemberResponseDto;
 import com.pollenalert.backend.member.dto.MemberUpdateRequestDto;
 import com.pollenalert.backend.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,7 +45,7 @@ public class MemberController {
 
     //알러지 설정 등록 및 수정
     @PostMapping("/{id}/allergy")
-    public ResponseEntity<AllergyResponseDto> updateAllergy(@PathVariable Long id, @AuthenticationPrincipal Long userId, @RequestBody AllergyRequestDto request){
+    public ResponseEntity<AllergyResponseDto> updateAllergy(@PathVariable Long id, @AuthenticationPrincipal Long userId, @Valid @RequestBody AllergyRequestDto request){
         return ResponseEntity.ok(memberService.saveAllergy(id,userId,request));
     }
 }
