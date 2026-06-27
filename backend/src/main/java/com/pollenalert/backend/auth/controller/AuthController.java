@@ -38,15 +38,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.refresh(refreshToken));
     }
 
-    /*로그아웃 v1 postgresql DB 사용
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@AuthenticationPrincipal Long userId){
-        authService.logout(userId);
-        return ResponseEntity.noContent().build();
-    }*/
-
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@AuthenticationPrincipal Long userId, @RequestHeader("Authorization") String bearerToken){
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
         String accessToken = bearerToken.substring(7);
         authService.logout(userId, accessToken);
         return ResponseEntity.noContent().build();

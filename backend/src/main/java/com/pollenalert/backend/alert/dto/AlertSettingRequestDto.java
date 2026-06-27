@@ -14,6 +14,7 @@ public record AlertSettingRequestDto(
         int notifyDaysBefore,
 
         @NotBlank
+        @jakarta.validation.constraints.Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d$", message = "HH:mm 형식이어야 합니다.")
         String notifyTime,
 
         String fcmToken

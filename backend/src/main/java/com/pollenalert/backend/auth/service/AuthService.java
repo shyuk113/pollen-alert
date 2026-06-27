@@ -1,11 +1,9 @@
 package com.pollenalert.backend.auth.service;
 
-import com.pollenalert.backend.auth.domain.RefreshToken;
 import com.pollenalert.backend.auth.dto.LoginRequestDto;
 import com.pollenalert.backend.auth.dto.SignupRequestDto;
 import com.pollenalert.backend.auth.dto.SignupResponseDto;
 import com.pollenalert.backend.auth.dto.TokenResponseDto;
-import com.pollenalert.backend.auth.repository.RefreshTokenRepository;
 import com.pollenalert.backend.global.jwt.JwtTokenProvider;
 import com.pollenalert.backend.global.redis.RedisTokenService;
 import com.pollenalert.backend.member.domain.User;
@@ -16,8 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -25,8 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    //private final RefreshTokenRepository refreshTokenRepository; DB 사용
-    private final RedisTokenService redisTokenService; //redis 사용
+    private final RedisTokenService redisTokenService;
 
     @Value("${jwt.access-token-expiration}")
     private long accessTokenExpiration;
@@ -61,14 +56,6 @@ public class AuthService {
 
     //토큰 재발급
     public TokenResponseDto refresh(String refreshToken){
-        /*RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
-                .orElseThrow(()-> new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다."));
-
-        if(refreshToken.isExpired()){
-            refreshTokenRepository.delete(refreshToken);
-            throw new IllegalArgumentException("만료된 리프레시 토큰입니다. 다시 로그인 해주세요");
-        }*/
-
         if (!jwtTokenProvider.validateToken(refreshToken)){
             throw new IllegalArgumentException("유효라지 않은 리프레시 토큰입니다.");
         }
@@ -90,17 +77,10 @@ public class AuthService {
         redisTokenService.addBlackList(accessToken, accessTokenExpiration / 1000);  //블랙리스트에 추가
     }
 
-    //토큰 발급 + RefreshToken DB 저장
     private TokenResponseDto issueTokens(User user, boolean isNewUser){
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getEmail());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
-        //LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(refreshTokenExpiration / 1000);
-        redisTokenService.saveRefreshToken(user.getId(), refreshToken, refreshTokenExpiration/1000);
-        //기본 RefreshToken 있으면 업데이트 없으면 새로 생성
-        /*refreshTokenRepository.findByUserId(user.getId())
-                .ifPresentOrElse(rt -> rt.update(newRefreshToken,expiresAt),
-                        ()-> refreshTokenRepository.save(RefreshToken.create(user, newRefreshToken, expiresAt)));
-                        */
+        redisTokenService.saveRefreshToken(user.getId(), refreshToken, refreshTokenExpiration / 1000);
         return new TokenResponseDto(accessToken, refreshToken, accessTokenExpiration / 1000, isNewUser);
     }
 }

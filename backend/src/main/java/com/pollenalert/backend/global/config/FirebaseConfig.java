@@ -17,6 +17,10 @@ public class FirebaseConfig {
     public void initialize() throws IOException {
         InputStream serviceAccount = getClass().getResourceAsStream("/firebase-service-account.json");
 
+        if (serviceAccount == null) {
+            throw new IllegalStateException("Firebase 서비스 계정 파일을 찾을 수 없습니다: /firebase-service-account.json");
+        }
+
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 

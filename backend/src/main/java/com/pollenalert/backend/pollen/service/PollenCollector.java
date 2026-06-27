@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -50,7 +51,7 @@ public class PollenCollector {
     @Scheduled(cron = "0 0 0/6 * * *")//
     public void collect(){
         log.info("꽃가루 데이터 수집 시작");
-        String time = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyMMdd")) + "18";
+        String time = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "18";
 
         for (RegionCode region : RegionCode.values()){
             for (String endpoint : ENDPOINTS){
@@ -66,7 +67,16 @@ public class PollenCollector {
     }
 
     private void collectPollenData(RegionCode region, String endpoint, String time, String pollenType){
-        KmaPollenResponseDto response = webClient.get().uri(baseUrl + endpoint + "?serviceKey={key}&numOfRows=10&pageNo=1&dataType=JSON&areaNo={areaNo}&time={time}", apiKey, region.getCode(),time).retrieve().bodyToMono(KmaPollenResponseDto.class).block();
+        KmaPollenResponseDto response = webClient.get()
+                .uri(baseUrl + endpoint + "?serviceKey={key}&numOfRows=10&pageNo=1&dataType=JSON&areaNo={areaNo}&time={time}",
+                        apiKey, region.getCode(), time)
+                .retrieve()
+                .bodyToMono(KmaPollenResponseDto.class)
+                .onErrorResume(e -> {
+                    log.error("KMA API 호출 실패: region={}, endpoint={}, error={}", region.name(), endpoint, e.getMessage());
+                    return reactor.core.publisher.Mono.empty();
+                })
+                .block();
 
         if(response == null || response.getResponse() == null || response.getResponse().getBody() == null || response.getResponse().getBody().getItems() == null || response.getResponse().getBody().getItems().getItem() == null){
             return;
@@ -109,6 +119,7 @@ public class PollenCollector {
         };
     }
 
+    @Async
     @PostConstruct
     public void init() {
         collect();
