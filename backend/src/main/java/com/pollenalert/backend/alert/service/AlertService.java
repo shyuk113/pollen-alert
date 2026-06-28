@@ -6,6 +6,8 @@ import com.pollenalert.backend.alert.dto.AlertSettingRequestDto;
 import com.pollenalert.backend.alert.dto.AlertSettingResponseDto;
 import com.pollenalert.backend.alert.repository.AlertHistoryRepository;
 import com.pollenalert.backend.alert.repository.AlertSettingRepository;
+import com.pollenalert.backend.global.exception.BusinessException;
+import com.pollenalert.backend.global.exception.ErrorCode;
 import com.pollenalert.backend.member.domain.User;
 import com.pollenalert.backend.member.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ public class AlertService {
     //알림 설정 저장
     @Transactional
     public AlertSettingResponseDto saveAlertSetting(Long userId, AlertSettingRequestDto request){
-        User user = userRepository.findById(userId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 유저입니다."));
+        User user = userRepository.findById(userId).orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         AlertSetting setting = alertSettingRepository.findByUser_id(userId).orElse(null);
 
@@ -44,7 +46,7 @@ public class AlertService {
     //알림 설정 조회
     @Transactional(readOnly = true)
     public AlertSettingResponseDto getAlertSetting(Long userId){
-        AlertSetting setting = alertSettingRepository.findByUser_id(userId).orElseThrow(()->new IllegalArgumentException("알림 설정이 없습니다."));
+        AlertSetting setting = alertSettingRepository.findByUser_id(userId).orElseThrow(()->new BusinessException(ErrorCode.ALERT_SETTING_NOT_FOUND));
         return AlertSettingResponseDto.from(setting);
     }
 

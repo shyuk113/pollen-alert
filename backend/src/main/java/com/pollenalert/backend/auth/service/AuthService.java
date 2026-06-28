@@ -4,6 +4,8 @@ import com.pollenalert.backend.auth.dto.LoginRequestDto;
 import com.pollenalert.backend.auth.dto.SignupRequestDto;
 import com.pollenalert.backend.auth.dto.SignupResponseDto;
 import com.pollenalert.backend.auth.dto.TokenResponseDto;
+import com.pollenalert.backend.global.exception.BusinessException;
+import com.pollenalert.backend.global.exception.ErrorCode;
 import com.pollenalert.backend.global.jwt.JwtTokenProvider;
 import com.pollenalert.backend.global.redis.RedisTokenService;
 import com.pollenalert.backend.member.domain.User;
@@ -32,7 +34,7 @@ public class AuthService {
     @Transactional //회원가입
     public SignupResponseDto signup(SignupRequestDto request){
         if(userRepository.existsByEmail(request.email())){
-            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
         }
 
         String encodedPassword = passwordEncoder.encode(request.password());
@@ -44,11 +46,11 @@ public class AuthService {
 
     //로그인
     public TokenResponseDto login(LoginRequestDto request){
-        User user = userRepository.findByEmail(request.email()).orElseThrow(()->new IllegalArgumentException("존재하지 않는 이메일입니다."));
+        User user = userRepository.findByEmail(request.email()).orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         //비밀 번호 검증
         if (!passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
 
         return issueTokens(user,false);
@@ -57,17 +59,17 @@ public class AuthService {
     //토큰 재발급
     public TokenResponseDto refresh(String refreshToken){
         if (!jwtTokenProvider.validateToken(refreshToken)){
-            throw new IllegalArgumentException("유효라지 않은 리프레시 토큰입니다.");
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
         }
 
         Long userId =jwtTokenProvider.getUserId(refreshToken);
 
         String savedToken = redisTokenService.getRefreshToken(userId);
         if (savedToken == null || !savedToken.equals(refreshToken)){
-            throw new IllegalArgumentException("만료되었거나 유효하지 않은 리프레시 토큰입니다.");
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
         }
 
-        User user = userRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        User user = userRepository.findById(userId).orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
         return issueTokens(user,false);
     }
 

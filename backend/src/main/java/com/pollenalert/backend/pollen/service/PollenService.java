@@ -1,5 +1,7 @@
 package com.pollenalert.backend.pollen.service;
 
+import com.pollenalert.backend.global.exception.BusinessException;
+import com.pollenalert.backend.global.exception.ErrorCode;
 import com.pollenalert.backend.member.domain.AllergySetting;
 import com.pollenalert.backend.member.repository.AllergySettingRepository;
 import com.pollenalert.backend.pollen.domain.PollenData;
@@ -30,7 +32,7 @@ public class PollenService {
     @Transactional(readOnly = true)
     public PollenResponseDto getPollen(String region, Long userId){
 
-        AllergySetting setting = allergySettingRepository.findByUser_id(userId).orElseThrow(()-> new IllegalArgumentException("알러지 설정이 없습니다."));
+        AllergySetting setting = allergySettingRepository.findByUser_id(userId).orElseThrow(()-> new BusinessException(ErrorCode.ALLERGY_NOT_FOUND));
 
         List<String> types = Arrays.asList(setting.getTypes().split(","));
         LocalDate today = LocalDate.now();
@@ -40,7 +42,7 @@ public class PollenService {
         List<PollenTypeResponseDto> pollens = dataList.stream().map(d->new PollenTypeResponseDto(d.getPollenType(), d.getLevel(), d.getGrade())).toList();
 
         if (dataList.isEmpty()){
-            throw new IllegalArgumentException("꽃가루 데이터가 없습니다.");
+            throw new BusinessException(ErrorCode.POLLEN_DATA_NOT_FOUND);
         }
 
         return new PollenResponseDto(region,today.toString(), dataList.get(0).getSource().name(), pollens);
@@ -50,7 +52,7 @@ public class PollenService {
     @Transactional(readOnly = true)
     public PollenForecastResponseDto getForecast(String region, Long userId){
 
-        AllergySetting allergySetting = allergySettingRepository.findByUser_id(userId).orElseThrow(()-> new IllegalArgumentException("알러지 설정이 없습니다."));
+        AllergySetting allergySetting = allergySettingRepository.findByUser_id(userId).orElseThrow(()-> new BusinessException(ErrorCode.ALLERGY_NOT_FOUND));
 
         List<String> types = Arrays.asList(allergySetting.getTypes().split(","));
         LocalDate today = LocalDate.now();

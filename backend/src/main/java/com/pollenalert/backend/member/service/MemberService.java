@@ -1,5 +1,7 @@
 package com.pollenalert.backend.member.service;
 
+import com.pollenalert.backend.global.exception.BusinessException;
+import com.pollenalert.backend.global.exception.ErrorCode;
 import com.pollenalert.backend.member.domain.AllergySetting;
 import com.pollenalert.backend.member.domain.User;
 import com.pollenalert.backend.member.dto.AllergyRequestDto;
@@ -54,7 +56,7 @@ public class MemberService {
 
         for (String type : request.types()) {
             if (!VALID_POLLEN_TYPES.contains(type)) {
-                throw new IllegalArgumentException("유효하지 않은 알러지 타입입니다: " + type + " (oak, pine, weed 중 선택)");
+                throw new BusinessException(ErrorCode.INVALID_ALLERGY_TYPE);
             }
         }
 
@@ -76,20 +78,20 @@ public class MemberService {
     @Transactional(readOnly = true)
     public AllergyResponseDto getAllergy(Long userId, Long requesterId){
         validateAccess(userId,requesterId);
-        AllergySetting setting = allergySettingRepository.findByUser_id(userId).orElseThrow(()->new IllegalArgumentException("알러지 설정이 없습니다."));
+        AllergySetting setting = allergySettingRepository.findByUser_id(userId).orElseThrow(()->new BusinessException(ErrorCode.ALLERGY_NOT_FOUND));
         return AllergyResponseDto.from(setting);
     }
 
     //본인의 정보만 접근 허용을 위한 유효성 검증
     private void validateAccess(Long userId, Long requesterId){
         if(!userId.equals(requesterId)){
-            throw new IllegalArgumentException("본인의 정보만 접근할 수 있습니다");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
     }
 
     //반복 되는 코드 줄이기 위해 findUser 메서드 추가
     private User findUser(Long userId){
-        return userRepository.findById(userId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 유저입니다."));
+        return userRepository.findById(userId).orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 }
 
