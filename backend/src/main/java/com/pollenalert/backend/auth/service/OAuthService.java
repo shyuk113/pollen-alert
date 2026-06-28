@@ -31,6 +31,8 @@ public class OAuthService {
 
     @Value("${oauth.kakao.client-id}")
     private String kakaoClientId;
+    @Value("${oauth.kakao.client-secret:}")
+    private String kakaoClientSecret;
     @Value("${oauth.kakao.redirect-uri}")
     private String kakaoRedirectUri;
     @Value("${oauth.kakao.token-uri}")
@@ -152,17 +154,30 @@ public class OAuthService {
         params.add("client_id", kakaoClientId);
         params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", code);
+        if (kakaoClientSecret != null && !kakaoClientSecret.isBlank()) {
+            params.add("client_secret", kakaoClientSecret);
+        }
 
         Map<?, ?> response = webClient.post()
                 .uri(kakaoTokenUri)
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .bodyValue(params)
                 .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), clientResponse ->
+                        clientResponse.bodyToMono(String.class).map(body -> {
+                            log.error("카카오 토큰 요청 실패: status={}, body={}", clientResponse.statusCode(), body);
+                            return new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+                        })
+                )
                 .bodyToMono(Map.class)
-                .onErrorMap(e -> new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR))
+                .onErrorMap(e -> {
+                    log.error("카카오 토큰 요청 에러: {}", e.getMessage(), e);
+                    return new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+                })
                 .block();
 
         if (response == null || !response.containsKey("access_token")) {
+            log.error("카카오 응답에 access_token 없음: {}", response);
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
         return (String) response.get("access_token");
