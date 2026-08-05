@@ -14,6 +14,7 @@ public class RedisTokenService {
 
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
     private static final String BLACKLIST_PREFIX = "blacklist:";
+    private static final String OAUTH_STATE_PREFIX = "oauth:state:";
 
 
     //RefreshToken 저장
@@ -39,5 +40,16 @@ public class RedisTokenService {
     //블랙리스트 여부 확인
     public Boolean isBlackListed(String accessToken){
         return Boolean.TRUE.equals(stringRedisTemplate.hasKey(BLACKLIST_PREFIX + accessToken));
+    }
+
+    //상태 저장
+    public void saveOAuthState(String state, long expireSeconds){
+        stringRedisTemplate.opsForValue().set(OAUTH_STATE_PREFIX + state, "valid", expireSeconds, TimeUnit.SECONDS);
+    }
+
+    //상태 검증
+    public boolean validateAndConsumeOAuthState(String state){
+        Boolean deleted = stringRedisTemplate.delete(OAUTH_STATE_PREFIX + state);
+        return Boolean.TRUE.equals(deleted);
     }
 }
