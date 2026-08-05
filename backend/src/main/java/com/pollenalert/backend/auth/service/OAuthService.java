@@ -260,6 +260,13 @@ public class OAuthService {
         return (String) response.get("access_token");
     }
 
+    public String getNaverAuthorizeUrl(String state){
+        return "https://nid.naver.com/oauth2.0/authorize"
+                +"?response_type=code&client_id=" + naverClientId
+                +"&redirect_uri=" + naverRedirectUri
+                +"&state=" + state;
+    }
+
     // ── 구글 유저 정보 요청 ────────────────────────────
     @SuppressWarnings("unchecked")
     private Map<String, Object> getGoogleUserInfo(String accessToken) {
