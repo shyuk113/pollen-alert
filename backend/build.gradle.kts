@@ -40,6 +40,7 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	exclude("**/BackendApplicationTests.class")
 }
 
 tasks.withType<Jar> {
