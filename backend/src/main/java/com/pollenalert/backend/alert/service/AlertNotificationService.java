@@ -34,6 +34,7 @@ public class AlertNotificationService {
     private final AlertHistoryRepository alertHistoryRepository;
     private final AllergySettingRepository allergySettingRepository;
     private final PollenDataRepository pollenDataRepository;
+    private final FirebaseMessaging firebaseMessaging;
 
     // 매일 설정된 시간에 가장 근접한 정각(00분)에 실행 — 실제 알림 시간 필터링은 내부에서 처리
     @Scheduled(cron = "0 0 * * * *")
@@ -56,7 +57,7 @@ public class AlertNotificationService {
         }
     }
 
-    private void processUserAlert(AlertSetting setting) {
+    void processUserAlert(AlertSetting setting) {
         Long userId = setting.getUser().getId();
         String region = setting.getUser().getRegion();
 
@@ -144,7 +145,7 @@ public class AlertNotificationService {
                     .putData("alertLevel", String.valueOf(level))
                     .build();
 
-            FirebaseMessaging.getInstance().send(message);
+            firebaseMessaging.send(message);
             log.info("FCM 알림 발송 성공: userId={}, type={}", setting.getUser().getId(), alertType);
         } catch (FirebaseMessagingException e) {
             log.error("FCM 알림 발송 실패: userId={}, type={}, error={}", setting.getUser().getId(), alertType, e.getMessage());
