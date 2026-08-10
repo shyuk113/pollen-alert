@@ -1,4 +1,10 @@
 package com.pollenalert.backend.member.application.dto;
 
-public record MemberUpdateRequestDto(String name, String region) {
+import jakarta.validation.constraints.NotBlank;
+
+public record MemberUpdateRequestDto(
+        @NotBlank
+        String name,
+        @NotBlank
+        String region) {
 }

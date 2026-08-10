@@ -1,3 +1,10 @@
 package com.pollenalert.backend.auth.application.dto;
 
-public record LoginRequestDto(String email, String password){}
+import jakarta.validation.constraints.NotBlank;
+import org.checkerframework.checker.units.qual.N;
+
+public record LoginRequestDto(
+        @NotBlank
+        String email,
+        @NotBlank
+        String password){}
