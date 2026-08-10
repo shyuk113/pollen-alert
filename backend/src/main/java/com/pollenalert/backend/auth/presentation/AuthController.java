@@ -5,6 +5,7 @@ import com.pollenalert.backend.auth.application.dto.SignupRequestDto;
 import com.pollenalert.backend.auth.application.dto.SignupResponseDto;
 import com.pollenalert.backend.auth.application.dto.TokenResponseDto;
 import com.pollenalert.backend.auth.application.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,19 +22,19 @@ public class AuthController {
 
     //회원가입
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponseDto> signup(@RequestBody SignupRequestDto request){
+    public ResponseEntity<SignupResponseDto> signup(@Valid @RequestBody SignupRequestDto request){
         return ResponseEntity.ok(authService.signup(request));
     }
 
     //로그인
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDto> login(@RequestBody LoginRequestDto request){
+    public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto request){
         return ResponseEntity.ok(authService.login(request));
     }
 
     //토큰 재발급
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponseDto> refresh(@RequestBody Map<String,String> body){
+    public ResponseEntity<TokenResponseDto> refresh(@Valid @RequestBody Map<String,String> body){
         String refreshToken = body.get("refreshToken");
         return ResponseEntity.ok(authService.refresh(refreshToken));
     }

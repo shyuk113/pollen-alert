@@ -26,7 +26,7 @@ public class MemberController {
 
     //유저 정보 수정
     @PutMapping("/{id}")
-    public ResponseEntity<MemberResponseDto> updateMember(@PathVariable Long id, @AuthenticationPrincipal Long userId, @RequestBody MemberUpdateRequestDto request){
+    public ResponseEntity<MemberResponseDto> updateMember(@PathVariable Long id, @AuthenticationPrincipal Long userId, @Valid @RequestBody MemberUpdateRequestDto request){
         return ResponseEntity.ok(memberService.updateMember(id,userId,request));
     }
 
