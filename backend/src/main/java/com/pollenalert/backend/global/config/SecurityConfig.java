@@ -44,7 +44,10 @@ public class SecurityConfig {
                         "/api/auth/kakao",
                         "/api/auth/naver",
                         "/api/auth/naver/authorize-url",
-                        "/api/auth/google").permitAll().anyRequest().authenticated())
+                        "/api/auth/google",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html").permitAll().anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
