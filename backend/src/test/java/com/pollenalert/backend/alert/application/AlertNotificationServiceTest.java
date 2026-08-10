@@ -1,6 +1,5 @@
 package com.pollenalert.backend.alert.application;
 
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.pollenalert.backend.alert.domain.AlertSetting;
 import com.pollenalert.backend.alert.domain.AlertType;
@@ -37,7 +36,7 @@ class AlertNotificationServiceTest {
     @Mock private AlertHistoryRepository alertHistoryRepository;
     @Mock private AllergySettingRepository  allergySettingRepository;
     @Mock private PollenDataRepository pollenDataRepository;
-    @Mock private FirebaseMessaging firebaseMessaging;
+    @Mock private FcmSender fcmSender;
 
     @InjectMocks
     private AlertNotificationService alertNotificationService;
@@ -60,7 +59,7 @@ class AlertNotificationServiceTest {
 
         alertNotificationService.processUserAlert(setting);
 
-        verifyNoInteractions(allergySettingRepository, pollenDataRepository, firebaseMessaging);
+        verifyNoInteractions(allergySettingRepository, pollenDataRepository, fcmSender);
     }
 
     @Test
@@ -71,7 +70,7 @@ class AlertNotificationServiceTest {
 
         alertNotificationService.processUserAlert(setting);
 
-        verifyNoInteractions(pollenDataRepository, firebaseMessaging);
+        verifyNoInteractions(pollenDataRepository, fcmSender);
     }
 
     @Test
@@ -87,7 +86,7 @@ class AlertNotificationServiceTest {
 
         alertNotificationService.processUserAlert(setting);
 
-        verify(firebaseMessaging, times(1)).send(any(Message.class));
+        verify(fcmSender, times(1)).send(any(Message.class));
         verify(alertHistoryRepository, times(1)).save(any());
     }
 
@@ -103,7 +102,7 @@ class AlertNotificationServiceTest {
 
         alertNotificationService.processUserAlert(setting);
 
-        verify(firebaseMessaging, never()).send(any(Message.class));
+        verify(fcmSender, never()).send(any(Message.class));
     }
 
     @Test
@@ -116,6 +115,6 @@ class AlertNotificationServiceTest {
 
         alertNotificationService.processUserAlert(setting);
 
-        verify(firebaseMessaging, times(1)).send(any(Message.class));
+        verify(fcmSender, times(1)).send(any(Message.class));
     }
 }
