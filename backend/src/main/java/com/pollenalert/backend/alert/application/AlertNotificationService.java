@@ -1,7 +1,5 @@
 package com.pollenalert.backend.alert.application;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.pollenalert.backend.alert.domain.AlertHistory;
@@ -34,7 +32,7 @@ public class AlertNotificationService {
     private final AlertHistoryRepository alertHistoryRepository;
     private final AllergySettingRepository allergySettingRepository;
     private final PollenDataRepository pollenDataRepository;
-    private final FirebaseMessaging firebaseMessaging;
+    private final FcmSender fcmSender;
 
     // 매일 설정된 시간에 가장 근접한 정각(00분)에 실행 — 실제 알림 시간 필터링은 내부에서 처리
     @Scheduled(cron = "0 0 * * * *")
@@ -134,7 +132,6 @@ public class AlertNotificationService {
             return;
         }
 
-        try {
             Message message = Message.builder()
                     .setToken(fcmToken)
                     .setNotification(Notification.builder()
@@ -145,10 +142,16 @@ public class AlertNotificationService {
                     .putData("alertLevel", String.valueOf(level))
                     .build();
 
-            firebaseMessaging.send(message);
+        try {
+            fcmSender.send(message);
             log.info("FCM 알림 발송 성공: userId={}, type={}", setting.getUser().getId(), alertType);
-        } catch (FirebaseMessagingException e) {
-            log.error("FCM 알림 발송 실패: userId={}, type={}, error={}", setting.getUser().getId(), alertType, e.getMessage());
+        } catch (FcmTokenInvalidException e) {
+            log.warn("FCM 토큰 무효, 삭제 처리: userId={}", setting.getUser().getId());
+            setting.updateFcmToken(null);
+            alertSettingRepository.save(setting);
+            return;
+        } catch (TransientFcmException e) {
+            log.error("FCM 알림 발송 재시도 소진, 최종 실패: userId={}, type={}", setting.getUser().getId(), alertType);
             return;
         }
 
