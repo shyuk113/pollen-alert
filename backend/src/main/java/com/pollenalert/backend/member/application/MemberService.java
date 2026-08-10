@@ -1,0 +1,97 @@
+package com.pollenalert.backend.member.application;
+
+import com.pollenalert.backend.global.exception.BusinessException;
+import com.pollenalert.backend.global.exception.ErrorCode;
+import com.pollenalert.backend.member.domain.AllergySetting;
+import com.pollenalert.backend.member.domain.User;
+import com.pollenalert.backend.member.application.dto.AllergyRequestDto;
+import com.pollenalert.backend.member.application.dto.AllergyResponseDto;
+import com.pollenalert.backend.member.application.dto.MemberResponseDto;
+import com.pollenalert.backend.member.application.dto.MemberUpdateRequestDto;
+import com.pollenalert.backend.member.infrastructure.AllergySettingRepository;
+import com.pollenalert.backend.member.infrastructure.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class MemberService {
+
+    private final UserRepository userRepository;
+    private final AllergySettingRepository allergySettingRepository;
+
+    //유저 정보 조회
+    @Transactional(readOnly = true)
+    public MemberResponseDto getMember(Long userId, Long requesterId){
+        validateAccess(userId, requesterId);
+        User user = findUser(userId);
+        return MemberResponseDto.from(user);
+    }
+
+    //유저 정보 수정
+    @Transactional
+    public MemberResponseDto updateMember(Long userId, Long requesterId, MemberUpdateRequestDto request){
+        validateAccess(userId, requesterId);
+        User user = findUser(userId);
+        user.updateProfile(request.name(),request.region());
+        return MemberResponseDto.from(user);
+    }
+
+    //유저 탈퇴
+    @Transactional
+    public void deleteMember(Long userId, Long requesterId){
+        validateAccess(userId,requesterId);
+        User user = findUser(userId);
+        userRepository.delete(user);
+    }
+
+    private static final java.util.Set<String> VALID_POLLEN_TYPES = java.util.Set.of("oak", "pine", "weed");
+
+    //알러지 설정 저장
+    @Transactional
+    public AllergyResponseDto saveAllergy(Long userId, Long requesterId, AllergyRequestDto request){
+        validateAccess(userId, requesterId);
+        User user = findUser(userId);
+
+        for (String type : request.types()) {
+            if (!VALID_POLLEN_TYPES.contains(type)) {
+                throw new BusinessException(ErrorCode.INVALID_ALLERGY_TYPE);
+            }
+        }
+
+        String types = String.join(",", request.types());
+
+        AllergySetting setting = allergySettingRepository.findByUser_id(userId).orElse(null);
+
+        if (setting ==null) {
+            setting = AllergySetting.create(user, request.hasPollenAllergy(), types);
+            allergySettingRepository.save(setting);
+        } else {
+            setting.update(request.hasPollenAllergy(), types);
+        }
+
+        return AllergyResponseDto.from(setting);
+    }
+
+    //알러지 설정 조회
+    @Transactional(readOnly = true)
+    public AllergyResponseDto getAllergy(Long userId, Long requesterId){
+        validateAccess(userId,requesterId);
+        AllergySetting setting = allergySettingRepository.findByUser_id(userId).orElseThrow(()->new BusinessException(ErrorCode.ALLERGY_NOT_FOUND));
+        return AllergyResponseDto.from(setting);
+    }
+
+    //본인의 정보만 접근 허용을 위한 유효성 검증
+    private void validateAccess(Long userId, Long requesterId){
+        if(!userId.equals(requesterId)){
+            throw new BusinessException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+    }
+
+    //반복 되는 코드 줄이기 위해 findUser 메서드 추가
+    private User findUser(Long userId){
+        return userRepository.findById(userId).orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
+}
+
